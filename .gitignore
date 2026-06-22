@@ -1,0 +1,38 @@
+## Build outputs and binaries
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+trash/
+
+## IDE and Editor Specifics
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# JetBrains Rider
+.idea/
+*.sln.iml
+
+## User-specific and local configurations
+*.user
+*.userquery
+appsettings.Development.json
+appsettings.Local.json
+
+## Test and Code Coverage Outputs
+TestResults/
+*.clog
+*.cobertura.xml
+*.coverage
+
+## Package Management
+cfx/
+packages/
+node_modules/
+
+## Operating System Files
+.DS_Store
+Thumbs.db
