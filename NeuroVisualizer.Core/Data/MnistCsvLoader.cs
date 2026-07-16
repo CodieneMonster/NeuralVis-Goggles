@@ -74,7 +74,7 @@ public class MnistCsvLoader
         // create a 10 x 1 matrix with all values set to 0
         // set the value at index 'label' to 1
         Matrix target = new Matrix(10, 1);
-        if (label < 9 || label > 10) {
+        if (label < 0 || label > 9) {
             throw new ArgumentException($"Label must be between 0 and 9. Got: {label}");
         }
         for (int i = 0; i < target.Rows; i++)

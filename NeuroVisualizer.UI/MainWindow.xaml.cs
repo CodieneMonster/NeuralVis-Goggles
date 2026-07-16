@@ -61,6 +61,18 @@ public partial class MainWindow : Window
         MainViewModel vm = (MainViewModel)DataContext;
         vm.NewModel();
     }
+
+    private void DrawMnistImage_Click(object sender, RoutedEventArgs e)
+    {
+        MainViewModel vm = (MainViewModel)DataContext;
+
+        if (vm.CurrentMnistInput == null)
+        {
+            return;
+        }
+
+        DrawMnistImage(vm.CurrentMnistInput);
+    }
     // Loss  Graph
     private void DrawLossGraph()
     {
@@ -644,4 +656,36 @@ public partial class MainWindow : Window
 
         neuron.BeginAnimation(Ellipse.StrokeThicknessProperty, strokeAnimation);
     }
+
+
+    private void DrawMnistImage(Matrix input)
+    {
+        MnistImageCanvas.Children.Clear();
+
+        int imageSize = 28;
+        double pixelSize = 10; // 28 * 10 = 280 canvas size
+
+        for (int index = 0; index < 784; index++)
+        {
+            int row = index / imageSize;
+            int col = index % imageSize;
+
+            double value = input.Data[index, 0]; // value between 0.0 and 1.0
+
+            byte brightness = (byte)(value * 255);
+
+            Rectangle pixel = new Rectangle
+            {
+                Width = pixelSize,
+                Height = pixelSize,
+                Fill = new SolidColorBrush(Color.FromRgb(brightness, brightness, brightness))
+            };
+
+            Canvas.SetLeft(pixel, col * pixelSize);
+            Canvas.SetTop(pixel, row * pixelSize);
+
+            MnistImageCanvas.Children.Add(pixel);
+        }
+    }
+
 }

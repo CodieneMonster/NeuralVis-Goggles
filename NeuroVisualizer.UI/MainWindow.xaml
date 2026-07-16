@@ -1,106 +1,347 @@
 <Window x:Class="NeuralVisualizer1.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Width ="1400"
-        Height ="900">
-    
-    <StackPanel>
-        <Label Content="NeuralVisualizer1" FontSize="24" FontWeight="Bold" Margin="10"/>
-        <StackPanel Orientation="Horizontal" Margin="10">
-            <Button Content="New Model" Width="100" Margin="5"
-                    Click="NewModel_Click"/>
-            <Button Content="Load Model" Width="100" Margin="5"
-                    Click="LoadModel_Click"/>
-            <Button Content="Train" Width="100" Margin="5"
-                    Click="Train_Click"/>
-        </StackPanel>
-        <TextBlock Text="{Binding Loss, StringFormat=Loss: {0:F6}}"/>
-        
-      
-        <TextBlock Text="{Binding Accuracy, StringFormat=Accuracy: {0:P0}}"/>
-        
-        
-        <TextBlock Text="{Binding CurrentEpoch, StringFormat=Epoch: {0}}" />
-        <TextBlock Text="{Binding TotalEpochsTrained, StringFormat=Total Epochs: {0}}" />
-        <TextBlock Text="{Binding TrainingStatus, StringFormat=Status: {0}}" />
+        Title="NeuralVisualizer"
+        Width="1400"
+        Height="900">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="15">
+
+            <!-- ================= HEADER ================= -->
+            <TextBlock Text="NeuralVisualizer"
+                       FontSize="28"
+                       FontWeight="Bold"
+                       Margin="0,0,0,10"/>
+
+            <TextBlock Text="XOR Neural Network + MNIST Digit Recognition"
+                       FontSize="16"
+                       Foreground="Gray"
+                       Margin="0,0,0,20"/>
 
 
-        <TextBlock Text="Epochs to train:"/>
-        <TextBox Text="{Binding EpochsToTrain, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" />
-        <TextBlock Text="Learning rate:"/>
-        <TextBox Text="{Binding LearningRate, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" />
-        <DataGrid x:Name ="PredictionRows" ItemsSource="{Binding PredictionRows}"/>
-       <!--
-        <TextBlock Text="Training History:" FontWeight="Bold" Margin="5"/>
-        <DataGrid ItemsSource="{Binding LossHistory}" Height="150"/>
-        -->
-        <TextBlock Text="Live Loss Graph:" FontWeight="Bold" Margin="5"/>
+            <!-- ================= CONTROL BUTTONS ================= -->
+            <Border BorderBrush="Gray"
+                    BorderThickness="1"
+                    Padding="10"
+                    Margin="0,0,0,15">
 
-        <Border BorderBrush="Red" BorderThickness="1" Margin="5" Height="300" HorizontalAlignment="Stretch">
+                <StackPanel>
+                    <TextBlock Text="Model Controls"
+                               FontSize="18"
+                               FontWeight="Bold"
+                               Margin="0,0,0,10"/>
+
+                    <StackPanel Orientation="Horizontal">
+
+                        <Button Content="New XOR Model"
+                                Width="130"
+                                Height="35"
+                                Margin="5"
+                                Click="NewModel_Click"/>
+
+                        <Button Content="Load XOR Model"
+                                Width="130"
+                                Height="35"
+                                Margin="5"
+                                Click="LoadModel_Click"/>
+
+                        <Button Content="Train XOR"
+                                Width="130"
+                                Height="35"
+                                Margin="5"
+                                Click="Train_Click"/>
+
+
+                        <Button Content="Draw MNIST Image"
+                                Width="130"
+                                Height="35"
+                                Margin="5"
+                                Click="DrawMnistImage_Click"/>
+
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
             
-            <Canvas x:Name="LossGraphCanvas"
-            HorizontalAlignment="Stretch"
-            VerticalAlignment="Stretch"
-            SizeChanged="LossGraphCanvas_SizeChanged"
-            Background="Black"/>
-        </Border>
+            
 
-        <TextBlock Text="Live Neural Network Activations:" FontWeight="Bold" Margin="5"/>
+            <!-- ================= TRAINING SETTINGS ================= -->
+            <Border BorderBrush="Gray"
+                    BorderThickness="1"
+                    Padding="10"
+                    Margin="0,0,0,15">
 
-        <Border BorderBrush="Blue"
-        BorderThickness="1"
-        Margin="5"
-        Height="550"
-        HorizontalAlignment="Stretch">
-            <Canvas x:Name="NetworkGraphCanvas"
-            Background="Black"
-            HorizontalAlignment="Stretch"
-            VerticalAlignment="Stretch"
-            SizeChanged="NetworkGraphCanvas_SizeChanged"/>
-        </Border>
+                <StackPanel>
+                    <TextBlock Text="Training Settings"
+                               FontSize="18"
+                               FontWeight="Bold"
+                               Margin="0,0,0,10"/>
 
-        <TextBlock Text="Activation Values:" FontWeight="Bold" Margin="5"/>
+                    <StackPanel Orientation="Horizontal">
 
-        <StackPanel Orientation="Horizontal" Margin="5">
+                        <StackPanel Margin="0,0,20,0">
+                            <TextBlock Text="Epochs to Train:"/>
+                            <TextBox Width="150"
+                                     Text="{Binding EpochsToTrain, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"/>
+                        </StackPanel>
 
-            <StackPanel Margin="10">
-                <TextBlock Text="Input" FontWeight="Bold"/>
-                <TextBlock Text="Input 1:"/>
-                <TextBlock x:Name="Input1Value"/>
-                <TextBlock Text="Input 2:"/>
-                <TextBlock x:Name="Input2Value"/>
-            </StackPanel>
+                        <StackPanel Margin="0,0,20,0">
+                            <TextBlock Text="Learning Rate:"/>
+                            <TextBox Width="150"
+                                     Text="{Binding LearningRate, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"/>
+                        </StackPanel>
 
-            <StackPanel Margin="10">
-                <TextBlock Text="Hidden 1" FontWeight="Bold"/>
-                <TextBlock Text="H1-1:"/>
-                <TextBlock x:Name="Hidden1_1Value"/>
-                <TextBlock Text="H1-2:"/>
-                <TextBlock x:Name="Hidden1_2Value"/>
-                <TextBlock Text="H1-3:"/>
-                <TextBlock x:Name="Hidden1_3Value"/>
-                <TextBlock Text="H1-4:"/>
-                <TextBlock x:Name="Hidden1_4Value"/>
-            </StackPanel>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
 
-            <StackPanel Margin="10">
-                <TextBlock Text="Hidden 2" FontWeight="Bold"/>
-                <TextBlock Text="H2-1:"/>
-                <TextBlock x:Name="Hidden2_1Value"/>
-                <TextBlock Text="H2-2:"/>
-                <TextBlock x:Name="Hidden2_2Value"/>
-                <TextBlock Text="H2-3:"/>
-                <TextBlock x:Name="Hidden2_3Value"/>
-                <TextBlock Text="H2-4:"/>
-                <TextBlock x:Name="Hidden2_4Value"/>
-            </StackPanel>
 
-            <StackPanel Margin="10">
-                <TextBlock Text="Output" FontWeight="Bold"/>
-                <TextBlock Text="Output:"/>
-                <TextBlock x:Name="OutputValue"/>
-            </StackPanel>
+            <!-- ================= CURRENT METRICS ================= -->
+            <Border BorderBrush="Gray"
+                    BorderThickness="1"
+                    Padding="10"
+                    Margin="0,0,0,15">
+
+                <StackPanel>
+                    <TextBlock Text="Training Metrics"
+                               FontSize="18"
+                               FontWeight="Bold"
+                               Margin="0,0,0,10"/>
+
+                    <UniformGrid Columns="5">
+
+                        <StackPanel Margin="5">
+                            <TextBlock Text="Loss" FontWeight="Bold"/>
+                            <TextBlock Text="{Binding Loss, StringFormat={}{0:F6}}"/>
+                        </StackPanel>
+
+                        <StackPanel Margin="5">
+                            <TextBlock Text="Accuracy" FontWeight="Bold"/>
+                            <TextBlock Text="{Binding Accuracy, StringFormat={}{0:P0}}"/>
+                        </StackPanel>
+
+                        <StackPanel Margin="5">
+                            <TextBlock Text="Current Epoch" FontWeight="Bold"/>
+                            <TextBlock Text="{Binding CurrentEpoch}"/>
+                        </StackPanel>
+
+                        <StackPanel Margin="5">
+                            <TextBlock Text="Total Epochs" FontWeight="Bold"/>
+                            <TextBlock Text="{Binding TotalEpochsTrained}"/>
+                        </StackPanel>
+
+                        <StackPanel Margin="5">
+                            <TextBlock Text="Status" FontWeight="Bold"/>
+                            <TextBlock Text="{Binding TrainingStatus}"/>
+                        </StackPanel>
+
+                    </UniformGrid>
+                </StackPanel>
+            </Border>
+
+
+            <!-- ================= MNIST TEST VIEWER ================= -->
+            <Border BorderBrush="DarkOrange"
+                    BorderThickness="2"
+                    Padding="10"
+                    Margin="0,0,0,15">
+
+                <StackPanel>
+                    <TextBlock Text="MNIST Digit Viewer"
+                               FontSize="20"
+                               FontWeight="Bold"
+                               Margin="0,0,0,10"/>
+
+                    <StackPanel Orientation="Horizontal">
+
+                        <!-- MNIST IMAGE -->
+                        <StackPanel Margin="0,0,25,0">
+                            <TextBlock Text="Input Image"
+                                       FontWeight="Bold"
+                                       Margin="0,0,0,5"/>
+
+                            <Border BorderBrush="Black"
+                                    BorderThickness="2"
+                                    Width="280"
+                                    Height="280"
+                                    Background="Black">
+
+                                <!-- We will draw the 28x28 digit here using code-behind -->
+                                <Canvas x:Name="MnistImageCanvas"
+                                        Width="280"
+                                        Height="280"
+                                        Background="Black"/>
+                            </Border>
+                        </StackPanel>
+
+
+                        <!-- MNIST RESULT TEXT -->
+                        <StackPanel Margin="0,0,25,0"
+                                    Width="220">
+
+                            <TextBlock Text="Prediction"
+                                       FontWeight="Bold"
+                                       FontSize="16"
+                                       Margin="0,0,0,10"/>
+
+                            <StackPanel Orientation="Horizontal"
+                                        Margin="0,0,0,8">
+                                <TextBlock Text="Target Digit: "
+                                           FontWeight="Bold"/>
+                                <TextBlock Text="{Binding CurrentMnistTargetDigit}"/>
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal"
+                                        Margin="0,0,0,8">
+                                <TextBlock Text="Predicted Digit: "
+                                           FontWeight="Bold"/>
+                                <TextBlock Text="{Binding CurrentMnistPredictedDigit}"/>
+                            </StackPanel>
+
+                        </StackPanel>
+
+
+                        <!-- FUTURE OUTPUT NEURONS -->
+                        <StackPanel Width="300">
+                            <TextBlock Text="Output Neurons"
+                                       FontWeight="Bold"
+                                       FontSize="16"
+                                       Margin="0,0,0,10"/>
+
+                            <TextBlock Text="Later this section can show output[0] through output[9]."
+                                       TextWrapping="Wrap"
+                                       Foreground="Gray"/>
+
+                            <TextBlock Text="The largest output value becomes the predicted digit."
+                                       TextWrapping="Wrap"
+                                       Foreground="Gray"
+                                       Margin="0,8,0,0"/>
+                        </StackPanel>
+
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+
+            <!-- ================= PREDICTION ROWS ================= -->
+            <Border BorderBrush="Gray"
+                    BorderThickness="1"
+                    Padding="10"
+                    Margin="0,0,0,15">
+
+                <StackPanel>
+                    <TextBlock Text="Prediction Rows"
+                               FontSize="18"
+                               FontWeight="Bold"
+                               Margin="0,0,0,10"/>
+
+                    <DataGrid x:Name="PredictionRows"
+                              ItemsSource="{Binding PredictionRows}"
+                              Height="180"
+                              AutoGenerateColumns="True"/>
+                </StackPanel>
+            </Border>
+
+
+            <!-- ================= LOSS GRAPH ================= -->
+            <Border BorderBrush="Red"
+                    BorderThickness="1"
+                    Padding="10"
+                    Margin="0,0,0,15">
+
+                <StackPanel>
+                    <TextBlock Text="Live Loss Graph"
+                               FontSize="18"
+                               FontWeight="Bold"
+                               Margin="0,0,0,10"/>
+
+                    <Canvas x:Name="LossGraphCanvas"
+                            Height="300"
+                            Background="Black"
+                            HorizontalAlignment="Stretch"
+                            SizeChanged="LossGraphCanvas_SizeChanged"/>
+                </StackPanel>
+            </Border>
+
+
+            <!-- ================= NETWORK ACTIVATION GRAPH ================= -->
+            <Border BorderBrush="Blue"
+                    BorderThickness="1"
+                    Padding="10"
+                    Margin="0,0,0,15">
+
+                <StackPanel>
+                    <TextBlock Text="Live Neural Network Activations"
+                               FontSize="18"
+                               FontWeight="Bold"
+                               Margin="0,0,0,10"/>
+
+                    <Canvas x:Name="NetworkGraphCanvas"
+                            Height="550"
+                            Background="Black"
+                            HorizontalAlignment="Stretch"
+                            SizeChanged="NetworkGraphCanvas_SizeChanged"/>
+                </StackPanel>
+            </Border>
+
+
+            <!-- ================= XOR ACTIVATION VALUES ================= -->
+            <Border BorderBrush="Gray"
+                    BorderThickness="1"
+                    Padding="10"
+                    Margin="0,0,0,15">
+
+                <StackPanel>
+                    <TextBlock Text="XOR Activation Values"
+                               FontSize="18"
+                               FontWeight="Bold"
+                               Margin="0,0,0,10"/>
+
+                    <StackPanel Orientation="Horizontal">
+
+                        <StackPanel Margin="10">
+                            <TextBlock Text="Input" FontWeight="Bold"/>
+                            <TextBlock Text="Input 1:"/>
+                            <TextBlock x:Name="Input1Value"/>
+                            <TextBlock Text="Input 2:"/>
+                            <TextBlock x:Name="Input2Value"/>
+                        </StackPanel>
+
+                        <StackPanel Margin="10">
+                            <TextBlock Text="Hidden 1" FontWeight="Bold"/>
+                            <TextBlock Text="H1-1:"/>
+                            <TextBlock x:Name="Hidden1_1Value"/>
+                            <TextBlock Text="H1-2:"/>
+                            <TextBlock x:Name="Hidden1_2Value"/>
+                            <TextBlock Text="H1-3:"/>
+                            <TextBlock x:Name="Hidden1_3Value"/>
+                            <TextBlock Text="H1-4:"/>
+                            <TextBlock x:Name="Hidden1_4Value"/>
+                        </StackPanel>
+
+                        <StackPanel Margin="10">
+                            <TextBlock Text="Hidden 2" FontWeight="Bold"/>
+                            <TextBlock Text="H2-1:"/>
+                            <TextBlock x:Name="Hidden2_1Value"/>
+                            <TextBlock Text="H2-2:"/>
+                            <TextBlock x:Name="Hidden2_2Value"/>
+                            <TextBlock Text="H2-3:"/>
+                            <TextBlock x:Name="Hidden2_3Value"/>
+                            <TextBlock Text="H2-4:"/>
+                            <TextBlock x:Name="Hidden2_4Value"/>
+                        </StackPanel>
+
+                        <StackPanel Margin="10">
+                            <TextBlock Text="Output" FontWeight="Bold"/>
+                            <TextBlock Text="Output:"/>
+                            <TextBlock x:Name="OutputValue"/>
+                        </StackPanel>
+
+                    </StackPanel>
+                </StackPanel>
+            </Border>
 
         </StackPanel>
-    </StackPanel>
-    </Window>
+    </ScrollViewer>
+</Window>

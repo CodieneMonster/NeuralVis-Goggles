@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Numerics;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 public class MainViewModel : INotifyPropertyChanged
 {
@@ -130,6 +131,43 @@ private int epochsToTrain;
             OnPropertyChanged(nameof(Accuracy));
         }
     }
+
+
+    private int currentMnistTargetDigit;
+    public int CurrentMnistTargetDigit
+    {
+        get { return currentMnistTargetDigit; }
+        set
+        {
+            currentMnistTargetDigit = value;
+            OnPropertyChanged(nameof(CurrentMnistTargetDigit));
+        }
+    }
+
+    private int currentMnistPredictedDigit;
+    public int CurrentMnistPredictedDigit
+    {
+        get { return currentMnistPredictedDigit; }
+        set
+        {
+            currentMnistPredictedDigit = value;
+            OnPropertyChanged(nameof(CurrentMnistPredictedDigit));
+        }
+    }
+
+    private Matrix? currentMnistInput;
+
+    public Matrix? CurrentMnistInput
+    {
+        get { return currentMnistInput;  }
+        set
+        {
+            currentMnistInput = value;
+            OnPropertyChanged(nameof(currentMnistInput));
+        }
+    }
+
+
     public event PropertyChangedEventHandler? PropertyChanged;
     private Random rng;
 
@@ -137,6 +175,7 @@ private int epochsToTrain;
     // viewmodel needs to hold current model
     // to be able to refresh predictions when model is updated
     private NeuralNetwork network;
+
 
     public MainViewModel()
     {
@@ -152,7 +191,72 @@ private int epochsToTrain;
         network = new NeuralNetwork(2, 4, 4, 1, rng);
         RefreshPredictions();
         RefreshActivationSnapshot();
-}
+        TestMnistLoader();
+    }
+
+    private void TestMnistLoader()
+    {
+        string filePath = @"C:\Users\ekin\Documents\GitHub\NeuralVis-Goggles\Datasets\MNIST_CSV\mnist_train.csv";
+
+        var samples = MnistCsvLoader.LoadSamples(filePath, 100);
+        currentMnistInput = samples[0].Input;
+
+        Debug.WriteLine(samples.Count);
+        Debug.WriteLine(samples[0].Input.Rows);
+        Debug.WriteLine(samples[0].Input.Cols);
+        Debug.WriteLine(samples[0].Target.Rows);
+        Debug.WriteLine(samples[0].Target.Cols);
+
+        int targetDigit = ArgMax(samples[0].Target);
+        Debug.WriteLine($"Target Digit: {targetDigit}");
+
+        // TEMP MNIST NETWORK TEST
+        NeuralNetwork mnistNetwork = new NeuralNetwork(784, 64, 32, 10, rng);
+
+        Matrix output = mnistNetwork.forwardPass(samples[0].Input);
+
+        Debug.WriteLine($"Output Shape: {output.Rows} x {output.Cols}");
+
+        int predictedDigit = ArgMax(output);
+        CurrentMnistTargetDigit = targetDigit;
+        CurrentMnistPredictedDigit = predictedDigit;
+
+
+        Debug.WriteLine($"Predicted Digit: {predictedDigit}");
+        Debug.WriteLine($"Target Digit: {targetDigit}");
+    }
+
+
+    public static int ArgMax(Matrix matrix)
+    {
+        if (matrix == null)
+        {
+            throw new ArgumentNullException(nameof(matrix));
+        }
+
+        if (matrix.Rows == 0 || matrix.Cols == 0)
+        {
+            throw new ArgumentException("Matrix cannot be empty.");
+        }
+
+        int bestIndex = 0;
+        double bestValue = matrix.Data[0, 0];
+
+        for (int i = 1; i < matrix.Rows; i++)
+        {
+            double currentValue = matrix.Data[i, 0];
+
+            if (currentValue > bestValue)
+            {
+                bestValue = currentValue;
+                bestIndex = i;
+            }
+        }
+
+        return bestIndex;
+    }
+
+
 
     public void OnPropertyChanged(string propertyName)
     {
@@ -189,52 +293,6 @@ public void CreateXORSamples()
         Samples.Add(new TrainingSample(input02, target02));
         Samples.Add(new TrainingSample(input03, target03));
     }
-
-    //public void TrainXor()
-    //{
-    //    CurrentEpoch = 0;
-    //    TrainingStatus = "Training...";
-
-    //    if (Samples == null)
-    //    {
-    //        Samples = new List<TrainingSample>();
-    //        CreateXORSamples();
-    //    }
-
-    //    if (network == null)
-    //    {
-    //        network = new NeuralNetwork(2, 4, 4, 1, rng);
-    //    }
-
-    //    // LossHistory.Clear();
-
-    //    int recordEvery = 100;
-    //    int startingEpoch = TotalEpochsTrained;
-    //    for (int epoch = 1; epoch <= EpochsToTrain; epoch++)
-    //    {
-    //        double averageLoss = network.trainOneEpoch(Samples, LearningRate);
-
-    //        CurrentEpoch = epoch;
-    //        TotalEpochsTrained += 1;
-    //        int globalEpoch = startingEpoch + epoch;
-    //        if (epoch % recordEvery == 0 || epoch == EpochsToTrain)
-    //        {
-    //            double currentAccuracy = network.accuracyTest(Samples);
-
-    //            LossHistory.Add(
-    //                new TrainingHistoryPoint(
-    //                    globalEpoch,
-    //                    averageLoss,
-    //                    currentAccuracy
-    //                )
-    //            );
-    //        }
-    //    }
-
-    //    RefreshPredictions();
-
-    //    TrainingStatus = $"Finished | Epochs: {EpochsToTrain} | LR: {LearningRate}";
-    //}
 
     public async Task TrainXor()
     {

@@ -8,4 +8,12 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="NeuroVisualizer.Core\Utils\PredictionHelper.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="NeuroVisualizer.Core\Utils\PredictionHelper.cs" />
+  </ItemGroup>
+
 </Project>
