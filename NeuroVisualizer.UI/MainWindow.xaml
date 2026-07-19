@@ -33,27 +33,20 @@
                                Margin="0,0,0,10"/>
 
                     <StackPanel Orientation="Horizontal">
-
-                        <Button Content="New XOR Model"
+                        <Button Content="Train MNIST"
                                 Width="130"
                                 Height="35"
                                 Margin="5"
-                                Click="NewModel_Click"/>
-
-                        <Button Content="Load XOR Model"
+                                Click="TrainMnist_Click"/>
+                        
+                        <Button Content="Train MNIST By 1 Epoch"
                                 Width="130"
                                 Height="35"
                                 Margin="5"
-                                Click="LoadModel_Click"/>
-
-                        <Button Content="Train XOR"
-                                Width="130"
-                                Height="35"
-                                Margin="5"
-                                Click="Train_Click"/>
+                                Click="TrainMnistOneEpoch_Click"/>
 
 
-                        <Button Content="Draw MNIST Image"
+                            <Button Content="Draw MNIST Image"
                                 Width="130"
                                 Height="35"
                                 Margin="5"
@@ -223,27 +216,6 @@
                 </StackPanel>
             </Border>
 
-
-            <!-- ================= PREDICTION ROWS ================= -->
-            <Border BorderBrush="Gray"
-                    BorderThickness="1"
-                    Padding="10"
-                    Margin="0,0,0,15">
-
-                <StackPanel>
-                    <TextBlock Text="Prediction Rows"
-                               FontSize="18"
-                               FontWeight="Bold"
-                               Margin="0,0,0,10"/>
-
-                    <DataGrid x:Name="PredictionRows"
-                              ItemsSource="{Binding PredictionRows}"
-                              Height="180"
-                              AutoGenerateColumns="True"/>
-                </StackPanel>
-            </Border>
-
-
             <!-- ================= LOSS GRAPH ================= -->
             <Border BorderBrush="Red"
                     BorderThickness="1"
@@ -263,85 +235,6 @@
                             SizeChanged="LossGraphCanvas_SizeChanged"/>
                 </StackPanel>
             </Border>
-
-
-            <!-- ================= NETWORK ACTIVATION GRAPH ================= -->
-            <Border BorderBrush="Blue"
-                    BorderThickness="1"
-                    Padding="10"
-                    Margin="0,0,0,15">
-
-                <StackPanel>
-                    <TextBlock Text="Live Neural Network Activations"
-                               FontSize="18"
-                               FontWeight="Bold"
-                               Margin="0,0,0,10"/>
-
-                    <Canvas x:Name="NetworkGraphCanvas"
-                            Height="550"
-                            Background="Black"
-                            HorizontalAlignment="Stretch"
-                            SizeChanged="NetworkGraphCanvas_SizeChanged"/>
-                </StackPanel>
-            </Border>
-
-
-            <!-- ================= XOR ACTIVATION VALUES ================= -->
-            <Border BorderBrush="Gray"
-                    BorderThickness="1"
-                    Padding="10"
-                    Margin="0,0,0,15">
-
-                <StackPanel>
-                    <TextBlock Text="XOR Activation Values"
-                               FontSize="18"
-                               FontWeight="Bold"
-                               Margin="0,0,0,10"/>
-
-                    <StackPanel Orientation="Horizontal">
-
-                        <StackPanel Margin="10">
-                            <TextBlock Text="Input" FontWeight="Bold"/>
-                            <TextBlock Text="Input 1:"/>
-                            <TextBlock x:Name="Input1Value"/>
-                            <TextBlock Text="Input 2:"/>
-                            <TextBlock x:Name="Input2Value"/>
-                        </StackPanel>
-
-                        <StackPanel Margin="10">
-                            <TextBlock Text="Hidden 1" FontWeight="Bold"/>
-                            <TextBlock Text="H1-1:"/>
-                            <TextBlock x:Name="Hidden1_1Value"/>
-                            <TextBlock Text="H1-2:"/>
-                            <TextBlock x:Name="Hidden1_2Value"/>
-                            <TextBlock Text="H1-3:"/>
-                            <TextBlock x:Name="Hidden1_3Value"/>
-                            <TextBlock Text="H1-4:"/>
-                            <TextBlock x:Name="Hidden1_4Value"/>
-                        </StackPanel>
-
-                        <StackPanel Margin="10">
-                            <TextBlock Text="Hidden 2" FontWeight="Bold"/>
-                            <TextBlock Text="H2-1:"/>
-                            <TextBlock x:Name="Hidden2_1Value"/>
-                            <TextBlock Text="H2-2:"/>
-                            <TextBlock x:Name="Hidden2_2Value"/>
-                            <TextBlock Text="H2-3:"/>
-                            <TextBlock x:Name="Hidden2_3Value"/>
-                            <TextBlock Text="H2-4:"/>
-                            <TextBlock x:Name="Hidden2_4Value"/>
-                        </StackPanel>
-
-                        <StackPanel Margin="10">
-                            <TextBlock Text="Output" FontWeight="Bold"/>
-                            <TextBlock Text="Output:"/>
-                            <TextBlock x:Name="OutputValue"/>
-                        </StackPanel>
-
-                    </StackPanel>
-                </StackPanel>
-            </Border>
-
         </StackPanel>
     </ScrollViewer>
 </Window>

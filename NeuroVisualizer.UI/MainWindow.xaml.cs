@@ -17,20 +17,9 @@ public partial class MainWindow : Window
         MainViewModel vm = (MainViewModel)DataContext;
 
         vm.LossHistory.CollectionChanged += LossHistory_CollectionChanged;
-        vm.PropertyChanged += Vm_PropertyChanged;
-
-        UpdateActivationTextValues();
-        DrawNetworkGraph();
+        DrawLossGraph();
     }
 
-    private void Vm_PropertyChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        if (e.PropertyName == nameof(MainViewModel.CurrentActivationSnapshot))
-        {
-            UpdateActivationTextValues();
-            DrawNetworkGraph();
-        }
-    }
 
     private void LossHistory_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
@@ -40,26 +29,6 @@ public partial class MainWindow : Window
     private void LossGraphCanvas_SizeChanged(object sender, SizeChangedEventArgs e)
     {
         DrawLossGraph();
-    }
-
-    public void LoadModel_Click(object sender, RoutedEventArgs e)
-    {
-        MainViewModel vm = (MainViewModel)DataContext;
-
-        vm.LoadXorModel();
-    }
-
-    public async void Train_Click(object sender, RoutedEventArgs e)
-    {
-        MainViewModel vm = (MainViewModel)DataContext;
-        await vm.TrainXor();
-        await Task.Delay(1);
-    }
-
-    public void NewModel_Click(object sender, RoutedEventArgs e)
-    {
-        MainViewModel vm = (MainViewModel)DataContext;
-        vm.NewModel();
     }
 
     private void DrawMnistImage_Click(object sender, RoutedEventArgs e)
@@ -346,316 +315,6 @@ public partial class MainWindow : Window
     }
 
 
-    // Live Network Graph 
-    private void DrawNetworkGraph()
-    {
-        MainViewModel vm = (MainViewModel)DataContext;
-
-        NetworkGraphCanvas.Children.Clear();
-
-        ActivationSnapshot? snapshot = vm.CurrentActivationSnapshot;
-
-        if (snapshot == null)
-        {
-            return;
-        }
-
-        double width = NetworkGraphCanvas.ActualWidth;
-        double height = NetworkGraphCanvas.ActualHeight;
-
-        if (width <= 0 || height <= 0)
-        {
-            return;
-        }
-
-        double leftPadding = 90;
-        double rightPadding = 90;
-        double topPadding = 60;
-        double bottomPadding = 40;
-
-        double graphTop = topPadding;
-        double graphBottom = height - bottomPadding;
-
-        double usableWidth = width - leftPadding - rightPadding;
-
-        double inputX = leftPadding;
-        double hidden1X = leftPadding + usableWidth / 3.0;
-        double hidden2X = leftPadding + usableWidth * 2.0 / 3.0;
-        double outputX = width - rightPadding;
-
-        DrawConnections(snapshot.InputValues, snapshot.Hidden1Values, inputX, hidden1X, graphTop, graphBottom);
-        DrawConnections(snapshot.Hidden1Values, snapshot.Hidden2Values, hidden1X, hidden2X, graphTop, graphBottom);
-        DrawConnections(snapshot.Hidden2Values, snapshot.OutputValues, hidden2X, outputX, graphTop, graphBottom);
-
-        DrawLayer("Input", snapshot.InputValues, inputX, graphTop, graphBottom);
-        DrawLayer("Hidden 1", snapshot.Hidden1Values, hidden1X, graphTop, graphBottom);
-        DrawLayer("Hidden 2", snapshot.Hidden2Values, hidden2X, graphTop, graphBottom);
-        DrawLayer("Output", snapshot.OutputValues, outputX, graphTop, graphBottom);
-    }
-
-    private void UpdateActivationTextValues()
-    {
-        MainViewModel vm = (MainViewModel)DataContext;
-
-        ActivationSnapshot? snapshot = vm.CurrentActivationSnapshot;
-
-        if (snapshot == null)
-        {
-            return;
-        }
-
-        Input1Value.Text = snapshot.InputValues[0].ToString("F4");
-        Input2Value.Text = snapshot.InputValues[1].ToString("F4");
-
-        Hidden1_1Value.Text = snapshot.Hidden1Values[0].ToString("F4");
-        Hidden1_2Value.Text = snapshot.Hidden1Values[1].ToString("F4");
-        Hidden1_3Value.Text = snapshot.Hidden1Values[2].ToString("F4");
-        Hidden1_4Value.Text = snapshot.Hidden1Values[3].ToString("F4");
-
-        Hidden2_1Value.Text = snapshot.Hidden2Values[0].ToString("F4");
-        Hidden2_2Value.Text = snapshot.Hidden2Values[1].ToString("F4");
-        Hidden2_3Value.Text = snapshot.Hidden2Values[2].ToString("F4");
-        Hidden2_4Value.Text = snapshot.Hidden2Values[3].ToString("F4");
-
-        OutputValue.Text = snapshot.OutputValues[0].ToString("F4");
-    }
-
-    private void DrawConnections(double[] fromLayer, double[] toLayer, double fromX,
-                                     double toX, double graphTop, double graphBottom)
-    {
-        for (int i = 0; i < fromLayer.Length; i++)
-        {
-            double fromY = GetNeuronY(i, fromLayer.Length, graphTop, graphBottom);
-
-            for (int j = 0; j < toLayer.Length; j++)
-            {
-                double toY = GetNeuronY(j, toLayer.Length, graphTop, graphBottom);
-                // strength controls the amount of line shading based on the activation of the Neuron and the connection weight 
-                double strength = (fromLayer[i] + toLayer[j]) / 2.0;
-                strength = Math.Clamp(strength, 0.0, 1.0);
-
-                Line connection = new Line
-                {
-                    X1 = fromX,
-                    Y1 = fromY,
-                    X2 = toX,
-                    Y2 = toY,
-                    Stroke = Brushes.White,
-                    StrokeThickness = 0.5 + strength * 2.0,
-                    Opacity = 0.15 + strength * 0.65
-                };
-
-                NetworkGraphCanvas.Children.Add(connection);
-
-                if (strength > 0.35)
-                {
-                    AnimateConnectionFlash(connection, strength);
-                    AnimateSignalPulse(fromX, fromY, toX, toY, strength);
-                }
-            }
-        }
-    }
-
-    private void DrawLayer(string layerName, double[] values, double x, double graphTop, double graphBottom)
-    {
-        TextBlock layerLabel = new TextBlock
-        {
-            Text = layerName,
-            FontSize = 13,
-            FontWeight = FontWeights.Bold,
-            Foreground = Brushes.White
-        };
-
-        Canvas.SetLeft(layerLabel, x - 30);
-        Canvas.SetTop(layerLabel, 20);
-        NetworkGraphCanvas.Children.Add(layerLabel);
-
-        for (int i = 0; i < values.Length; i++)
-        {
-            double y = GetNeuronY(i, values.Length, graphTop, graphBottom);
-            DrawNeuron(x, y, values[i]);
-        }
-    }
-
-    private void NetworkGraphCanvas_SizeChanged(object sender, SizeChangedEventArgs e)
-    {
-        DrawNetworkGraph();
-    }
-
-    private double GetNeuronY(int index, int count, double graphTop, double graphBottom)
-    {
-        if (count == 1)
-        {
-            return (graphTop + graphBottom) / 2.0;
-        }
-
-        double spacing = (graphBottom - graphTop) / (count - 1);
-        return graphTop + index * spacing;
-    }
-
-    private void DrawNeuron(double x, double y, double activation)
-    {
-        activation = Math.Clamp(activation, 0.0, 1.0);
-
-        double size = 28 + activation * 18;
-
-        byte greenBlue = (byte)(60 + activation * 195);
-        double glowSize = size + 20 + activation * 20;
-
-        if (activation > 0.30) 
-        {
-            Ellipse glow = new Ellipse
-            {
-                Width = glowSize,
-                Height = glowSize,
-                Fill = Brushes.Cyan,
-                Opacity = 0.25
-            };
-
-            Canvas.SetLeft(glow, x - glowSize / 2.0);
-            Canvas.SetTop(glow, y - glowSize / 2.0);
-
-            NetworkGraphCanvas.Children.Add(glow);
-
-            AnimateNeuronGlow(glow);
-        }
-        Ellipse neuron = new Ellipse
-        {
-            Width = size,
-            Height = size,
-            Fill = new SolidColorBrush(Color.FromRgb(20, greenBlue, greenBlue)),
-            Stroke = Brushes.White,
-            StrokeThickness = 1.5
-        };
-
-        Canvas.SetLeft(neuron, x - size / 2.0);
-        Canvas.SetTop(neuron, y - size / 2.0);
-
-        NetworkGraphCanvas.Children.Add(neuron);
-
-        if (activation > 0.5)
-        {
-            AnimateNeuronFlash(neuron);
-        }
-
-        TextBlock valueText = new TextBlock
-        {
-            Text = activation.ToString("F2"),
-            FontSize = 10,
-            FontWeight = FontWeights.Bold,
-            Foreground = Brushes.Black
-        };
-
-        Canvas.SetLeft(valueText, x - 13);
-        Canvas.SetTop(valueText, y - 8);
-
-        NetworkGraphCanvas.Children.Add(valueText);
-    }
-
-    // network Graph Animation
-    private void AnimateConnectionFlash(Line line, double strength)
-    {
-        double baseOpacity = line.Opacity;
-        double flashOpacity = Math.Min(1.0, baseOpacity + 0.35 + strength * 0.25);
-
-        DoubleAnimation opacityAnimation = new DoubleAnimation
-        {
-            From = flashOpacity,
-            To = baseOpacity,
-            Duration = TimeSpan.FromMilliseconds(500),
-            AutoReverse = false
-        };
-
-        DoubleAnimation thicknessAnimation = new DoubleAnimation
-        {
-            From = line.StrokeThickness + 2.0,
-            To = line.StrokeThickness,
-            Duration = TimeSpan.FromMilliseconds(500),
-            AutoReverse = false
-        };
-
-        line.BeginAnimation(Line.OpacityProperty, opacityAnimation);
-        line.BeginAnimation(Line.StrokeThicknessProperty, thicknessAnimation);
-    }
-
-
-
-    private void AnimateSignalPulse(double fromX, double fromY, double toX, double toY, double strength)
-    {
-        double size = 6 + strength * 8;
-
-        Ellipse pulse = new Ellipse
-        {
-            Width = size,
-            Height = size,
-            Fill = Brushes.Cyan,
-            Stroke = Brushes.White,
-            StrokeThickness = 1,
-            Opacity = 0.9
-        };
-
-        Canvas.SetLeft(pulse, fromX - size / 2.0);
-        Canvas.SetTop(pulse, fromY - size / 2.0);
-
-        NetworkGraphCanvas.Children.Add(pulse);
-
-        DoubleAnimation moveX = new DoubleAnimation
-        {
-            From = fromX - size / 2.0,
-            To = toX - size / 2.0,
-            Duration = TimeSpan.FromMilliseconds(550)
-        };
-
-        DoubleAnimation moveY = new DoubleAnimation
-        {
-            From = fromY - size / 2.0,
-            To = toY - size / 2.0,
-            Duration = TimeSpan.FromMilliseconds(550)
-        };
-
-        DoubleAnimation fadeOut = new DoubleAnimation
-        {
-            From = 0.9,
-            To = 0.0,
-            BeginTime = TimeSpan.FromMilliseconds(250),
-            Duration = TimeSpan.FromMilliseconds(300)
-        };
-
-        fadeOut.Completed += (sender, e) =>
-        {
-            NetworkGraphCanvas.Children.Remove(pulse);
-        };
-
-        pulse.BeginAnimation(Canvas.LeftProperty, moveX);
-        pulse.BeginAnimation(Canvas.TopProperty, moveY);
-        pulse.BeginAnimation(Ellipse.OpacityProperty, fadeOut);
-    }
-
-
-    private void AnimateNeuronGlow(Ellipse glow)
-    {
-        DoubleAnimation opacityAnimation = new DoubleAnimation
-        {
-            From = 0.45,
-            To = 0.05,
-            Duration = TimeSpan.FromMilliseconds(650)
-        };
-
-        glow.BeginAnimation(Ellipse.OpacityProperty, opacityAnimation);
-    }
-
-
-    private void AnimateNeuronFlash(Ellipse neuron)
-    {
-        DoubleAnimation strokeAnimation = new DoubleAnimation
-        {
-            From = 4.0,
-            To = 1.5,
-            Duration = TimeSpan.FromMilliseconds(450)
-        };
-
-        neuron.BeginAnimation(Ellipse.StrokeThicknessProperty, strokeAnimation);
-    }
 
 
     private void DrawMnistImage(Matrix input)
@@ -685,6 +344,31 @@ public partial class MainWindow : Window
             Canvas.SetTop(pixel, row * pixelSize);
 
             MnistImageCanvas.Children.Add(pixel);
+        }
+    }
+
+
+    private async void TrainMnist_Click(object sender, RoutedEventArgs e)
+    {
+        MainViewModel vm = (MainViewModel)DataContext;
+
+        await vm.TrainMnist();
+
+        if (vm.CurrentMnistInput != null)
+        {
+            DrawMnistImage(vm.CurrentMnistInput);
+        }
+    }
+
+    private void TrainMnistOneEpoch_Click(object sender, RoutedEventArgs e)
+    {
+        MainViewModel vm = (MainViewModel)DataContext;
+
+        vm.TrainMnistOneEpoch();
+
+        if (vm.CurrentMnistInput != null)
+        {
+            DrawMnistImage(vm.CurrentMnistInput);
         }
     }
 
