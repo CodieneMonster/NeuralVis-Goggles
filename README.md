@@ -93,41 +93,6 @@ Output = [0.01, 0.02, 0.91, 0.03, 0.00, 0.01, 0.01, 0.00, 0.00, 0.01]
 Prediction = 2
 ```
 
-## Assistant Collaboration Rules
-
-Follow these rules strictly when helping with this project:
-
-1. **Do not give full code unless explicitly asked**
-   - Let me implement the solution myself.
-   - Provide logic, structure, and steps.
-   - Only provide full code when I explicitly request it.
-
-2. **Teach concept first, then implementation**
-   - Explain what we are doing conceptually.
-   - Then explain how to implement it.
-
-3. **Keep explanations clear and direct**
-   - Avoid unnecessary theory.
-   - Avoid overly complex math explanations.
-   - Use structured, step-by-step reasoning.
-
-4. **Focus on one step at a time**
-   - Do not jump ahead.
-   - Do not explain future systems prematurely.
-   - Only explain what is required for the current step.
-
-5. **Encourage reasoning**
-   - Ask small checkpoint questions when appropriate.
-   - Help verify my understanding before continuing.
-7. **Help debug, do not just fix**
-   - If I provide code, explain what is incorrect.
-   - Explain why it is incorrect.
-   - Guide me to the solution instead of rewriting everything.
-
-8. **Stay consistent with the current workflow**
-   - Build from the existing XOR network.
-   - Do not randomly replace the architecture unless necessary.
-   - Keep using the custom `Matrix`, `Layer`, `NeuralNetwork`, `TrainingSample`, and UI flow.
 
 ## Current Project State
 
@@ -254,12 +219,6 @@ CSV row
     -> TrainingSample
 ```
 
-Checkpoint:
-
-```text
-One MNIST CSV row should become one TrainingSample.
-```
-
 ---
 
 ## Phase 4: Build an MNIST CSV Loader
@@ -298,13 +257,6 @@ Start small:
 5000 samples
 full dataset later
 ```
-
-Checkpoint:
-
-```text
-Can the loader print the first label and confirm the input matrix is 784 x 1?
-```
-
 ---
 
 ## Phase 5: Add MNIST Network Architecture
@@ -342,12 +294,6 @@ Output layer:
 weights = 10 x 32
 bias    = 10 x 1
 output  = 10 x 1
-```
-
-Checkpoint:
-
-```text
-For MNIST, why should the final output matrix be 10 x 1?
 ```
 
 ---
@@ -397,12 +343,6 @@ output:
 predicted digit = 2
 ```
 
-Checkpoint:
-
-```text
-Why does binary threshold not work for 10-class digit recognition?
-```
-
 ---
 
 ## Phase 7: Update Loss and Output Activation Strategy
@@ -433,11 +373,6 @@ Tasks:
 
 Do not start with softmax yet unless the current sigmoid/MSE version works.
 
-Checkpoint:
-
-```text
-Can the model train for 1 epoch on 100 MNIST samples without crashing?
-```
 
 ---
 
@@ -458,20 +393,7 @@ Tasks:
 
 Suggested first training test:
 
-```text
-Training samples: 100
-Testing samples: 20
-Epochs: 1-5
-Learning rate: small, such as 0.01 or 0.05
-```
 
-Checkpoint:
-
-```text
-Does loss decrease after a few epochs on a small sample?
-```
-
----
 
 ## Phase 9: Add MNIST Prediction Rows
 
@@ -492,19 +414,6 @@ Tasks:
 
 Example row:
 
-```text
-Index: 17
-Prediction: 8
-Target: 8
-Confidence: 0.74
-Correct: true
-```
-
-Checkpoint:
-
-```text
-Can the UI show 10 test predictions after training?
-```
 
 ---
 
@@ -533,12 +442,6 @@ Data flow:
     -> 28 columns
     -> pixel brightness
     -> drawn digit image
-```
-
-Checkpoint:
-
-```text
-Can I visually recognize the digit being shown?
 ```
 
 ---
@@ -571,12 +474,6 @@ Suggested visualization:
 28x28 image -> Hidden 1 -> Hidden 2 -> Output digits 0-9
 ```
 
-Checkpoint:
-
-```text
-Can the graph show which digit output neuron is most active?
-```
-
 ---
 
 ## Phase 12: Save and Load MNIST Models
@@ -596,11 +493,6 @@ Tasks:
   - `xor_weights.txt`
   - `mnist_weights.txt`
 
-Checkpoint:
-
-```text
-After loading mnist_weights.txt, does the model give the same prediction for the same image?
-```
 
 ---
 
@@ -626,12 +518,6 @@ Tasks:
   - digit image viewer
   - MNIST prediction rows
   - 10-output display
-
-Checkpoint:
-
-```text
-Can I switch between XOR and MNIST without restarting the app?
-```
 
 ---
 
@@ -663,11 +549,7 @@ Training samples: 10 to 10000
 Test samples: 10 to 1000
 ```
 
-Checkpoint:
 
-```text
-Can the app train on 1000 samples without freezing?
-```
 
 ---
 
@@ -703,57 +585,3 @@ Accuracy improves above random guessing
 
 ---
 
-# New Chat Prompt
-
-Use this prompt when starting a new ChatGPT conversation about this project:
-
-```text
-I am building a C# WPF neural network visualizer from scratch called NeuralVisualizer.
-
-Current project state:
-- I built a custom Matrix class.
-- I built Activation, LossFunctions, Layer, TrainingSample, NeuralNetwork.
-- I trained XOR using a 2 -> 4 -> 4 -> 1 network.
-- I added backpropagation.
-- I added save/load weights.
-- I added a WPF UI.
-- I added loss, accuracy, epochs, total epochs, editable learning rate, editable epochs.
-- I added live loss history.
-- I added a live loss graph using Canvas.
-- I added a live neural activation graph for XOR using Canvas.
-- I want to convert this into an MNIST digit classifier using the uploaded MNIST dataset.
-
-Dataset files:
-- MNIST_CSV.zip
-  - mnist_train.csv
-  - mnist_test.csv
-  - generate_mnist_csv.py
-  - readme.md
-- MNIST_ORG.zip
-  - train-images.idx3-ubyte
-  - train-labels.idx1-ubyte
-  - t10k-images.idx3-ubyte
-  - t10k-labels.idx1-ubyte
-
-Important design:
-- XOR uses 2 inputs and 1 output.
-- MNIST needs 784 inputs and 10 outputs.
-- Each MNIST image is 28x28 pixels.
-- Each input should be a 784 x 1 Matrix.
-- Each label should be converted into a 10 x 1 one-hot target Matrix.
-- Start with CSV loading first.
-- Use sigmoid + MSE first because my existing network already supports it.
-- Consider softmax + cross entropy later only after the basic version works.
-
-How I want you to help:
-1. Do not give full code unless I explicitly ask.
-2. Teach concept first, then implementation.
-3. Keep explanations clear and direct.
-4. Focus on one step at a time.
-5. Encourage reasoning and ask checkpoint questions.
-6. Always explain matrix shapes and data flow.
-7. Help debug by explaining what is wrong and why.
-8. Stay consistent with my current workflow.
-
-Start by helping me implement the MNIST CSV loader one step at a time.
-```
