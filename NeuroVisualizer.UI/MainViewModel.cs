@@ -154,6 +154,7 @@ private int epochsToTrain;
 
     private List<TrainingSample> mnistSamples;
     private NeuralNetwork mnistNetwork;
+    private List<TrainingSample> mnistTestSamples;
 
 
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -163,8 +164,8 @@ private int epochsToTrain;
     public MainViewModel()
     {
         TrainingStatus = "Ready";
-        EpochsToTrain = 10000;
-        LearningRate = 0.5;
+        EpochsToTrain = 5;
+        LearningRate = 0.05;
         LossHistory = new ObservableCollection<TrainingHistoryPoint>();
 
         rng = new Random();
@@ -177,23 +178,17 @@ private int epochsToTrain;
 
     private void LoadMnistPreview()
     {
-        string filePath = @"C:\Users\ekin\Documents\GitHub\NeuralVis-Goggles\Datasets\MNIST_CSV\mnist_train.csv";
+        string trainFilePath = @"C:\Users\ekin\Documents\GitHub\NeuralVis-Goggles\Datasets\MNIST_CSV\mnist_train.csv";
+        string testFilePath = @"C:\Users\ekin\Documents\GitHub\NeuralVis-Goggles\Datasets\MNIST_CSV\mnist_test.csv";
 
-        mnistSamples = MnistCsvLoader.LoadSamples(filePath, 100);
+        mnistSamples = MnistCsvLoader.LoadSamples(trainFilePath, 1000);
+        mnistTestSamples = MnistCsvLoader.LoadSamples(testFilePath, 200);
 
         mnistNetwork = new NeuralNetwork(784, 64, 32, 10, rng);
 
-        CurrentMnistInput = mnistSamples[0].Input;
+        ShowMnistSample(0);
 
-        int targetDigit = ArgMax(mnistSamples[0].Target);
-
-        Matrix output = mnistNetwork.forwardPass(mnistSamples[0].Input);
-        int predictedDigit = ArgMax(output);
-
-        CurrentMnistTargetDigit = targetDigit;
-        CurrentMnistPredictedDigit = predictedDigit;
-
-        TrainingStatus = "MNIST samples loaded";
+        TrainingStatus = "MNIST train and test samples loaded";
     }
 
     //private void TestMnistLoader()
@@ -305,12 +300,12 @@ private int epochsToTrain;
         double averageLoss = mnistNetwork.trainOneEpoch(mnistSamples, LearningRate);
 
         Loss = averageLoss;
-        Accuracy = CalculateMnistAccuracy(mnistSamples);
+        Accuracy = CalculateMnistAccuracy(mnistTestSamples);
 
         TotalEpochsTrained += 1;
         CurrentEpoch = TotalEpochsTrained;
 
-        ShowMnistSample(0);
+        ShowMnistSample(CurrentMnistSampleIndex + 1);
 
         TrainingStatus = $"MNIST trained 1 epoch | Loss: {Loss:F6} | Accuracy: {Accuracy:P0}";
     }
@@ -345,10 +340,21 @@ private int epochsToTrain;
 
         for (int epoch = 1; epoch <= epochs; epoch++)
         {
+            bool shouldUpdateVisuals =
+                epoch == 1 ||
+                epoch == epochs ||
+                epoch % 5 == 0;
+
             var result = await Task.Run(() =>
             {
                 double averageLoss = mnistNetwork.trainOneEpoch(mnistSamples, LearningRate);
-                double currentAccuracy = CalculateMnistAccuracy(mnistSamples);
+
+                double currentAccuracy = Accuracy;
+
+                if (shouldUpdateVisuals)
+                {
+                    currentAccuracy = CalculateMnistAccuracy(mnistTestSamples);
+                }
 
                 return new
                 {
@@ -361,7 +367,7 @@ private int epochsToTrain;
             Accuracy = result.Accuracy;
 
             TotalEpochsTrained += 1;
-            CurrentEpoch = epoch;
+            CurrentEpoch = TotalEpochsTrained;
 
             LossHistory.Add(
                 new TrainingHistoryPoint(
@@ -375,6 +381,10 @@ private int epochsToTrain;
             {
                 Matrix output = mnistNetwork.forwardPass(CurrentMnistInput);
                 CurrentMnistPredictedDigit = ArgMax(output);
+            }
+            if (shouldUpdateVisuals)
+            {
+                ShowMnistSample(CurrentMnistSampleIndex + 1);
             }
 
             TrainingStatus = $"MNIST training... Epoch {epoch}/{epochs} | Loss: {Loss:F6} | Accuracy: {Accuracy:P0}";

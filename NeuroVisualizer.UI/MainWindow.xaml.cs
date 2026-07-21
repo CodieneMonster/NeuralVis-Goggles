@@ -15,11 +15,26 @@ public partial class MainWindow : Window
         InitializeComponent();
         DataContext = new MainViewModel();
         MainViewModel vm = (MainViewModel)DataContext;
+        vm.PropertyChanged += Vm_PropertyChanged;
 
         vm.LossHistory.CollectionChanged += LossHistory_CollectionChanged;
         DrawLossGraph();
+        Loaded += MainWindow_Loaded;
     }
 
+
+    private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+    {
+        DrawCurrentMnistImage();
+    }
+
+    private void Vm_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(MainViewModel.CurrentMnistInput))
+        {
+            DrawCurrentMnistImage();
+        }
+    }
 
     private void LossHistory_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
@@ -346,6 +361,18 @@ public partial class MainWindow : Window
             MnistImageCanvas.Children.Add(pixel);
         }
     }
+    // draw current mnist helper
+    private void DrawCurrentMnistImage()
+    {
+        MainViewModel vm = (MainViewModel)DataContext;
+
+        if (vm.CurrentMnistInput == null)
+        {
+            return;
+        }
+
+        DrawMnistImage(vm.CurrentMnistInput);
+    }
 
 
     private async void TrainMnist_Click(object sender, RoutedEventArgs e)
@@ -354,10 +381,7 @@ public partial class MainWindow : Window
 
         await vm.TrainMnist();
 
-        if (vm.CurrentMnistInput != null)
-        {
-            DrawMnistImage(vm.CurrentMnistInput);
-        }
+        DrawCurrentMnistImage();
     }
 
     private void TrainMnistOneEpoch_Click(object sender, RoutedEventArgs e)
@@ -366,10 +390,7 @@ public partial class MainWindow : Window
 
         vm.TrainMnistOneEpoch();
 
-        if (vm.CurrentMnistInput != null)
-        {
-            DrawMnistImage(vm.CurrentMnistInput);
-        }
+        DrawCurrentMnistImage();
     }
 
 }
