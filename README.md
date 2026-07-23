@@ -1,587 +1,246 @@
-# NeuralVisualizer MNIST Perceptron Roadmap
+# NeuralVis
 
-## Project Goal
+> A neural network visualization framework built entirely from scratch in C# and .NET.
 
-Turn the current XOR neural network visualizer into a handwritten digit recognition project using the MNIST dataset.
+NeuralVis is a software engineering project focused on understanding how neural networks learn internally by implementing every major component from first principles instead of relying on machine learning libraries.
 
-The new model should load handwritten digit images, train on MNIST, predict digits from `0` to `9`, and visualize how activations move through the network.
+The project currently supports training and visualizing an XOR neural network and is actively being expanded into a handwritten digit classifier using the MNIST dataset.
 
-This project should stay consistent with the current workflow:
+---
 
-```text
-Matrix -> Activation -> Loss -> Layer -> NeuralNetwork -> Training -> UI Visualization
+# Motivation
+
+Most machine learning frameworks abstract away the mathematical operations behind neural networks.
+
+The goal of NeuralVis is to understand exactly how neural networks learn by implementing every layer of the learning process manually, including:
+
+- Matrix mathematics
+- Feedforward propagation
+- Backpropagation
+- Gradient descent
+- Activation functions
+- Loss functions
+- Weight updates
+- Live visualization of neuron activations
+
+Rather than treating neural networks as a "black box," this project explores the algorithms that make them work.
+
+---
+
+# Current Features
+
+### Neural Network
+
+- Feedforward neural network
+- Configurable hidden layers
+- Sigmoid activation
+- Mean Squared Error (MSE) loss
+- Gradient descent optimization
+- Adjustable learning rate
+- Save and load trained models
+
+### Mathematics
+
+- Matrix multiplication
+- Matrix addition
+- Matrix subtraction
+- Matrix transpose
+- Element-wise operations
+- Random weight initialization
+
+### Visualization
+
+- Live loss graph
+- Live neuron activation visualization
+- Training progress monitoring
+- WPF desktop interface
+
+### Training
+
+- XOR dataset training
+- Configurable epochs
+- Training history
+- Model persistence
+
+---
+
+# Technologies
+
+- C#
+- .NET
+- WPF
+- Object-Oriented Programming
+- Linear Algebra
+- Machine Learning Fundamentals
+- Git
+
+---
+
+# Architecture
+
 ```
-
-## Uploaded Dataset Files
-
-Two MNIST dataset packages are available:
-
-### `MNIST_CSV.zip`
-
-Use this first because CSV parsing is easier in C#.
-
-Contains:
-
-```text
-mnist_train.csv
-mnist_test.csv
-generate_mnist_csv.py
-readme.md
-```
-
-Expected CSV row format:
-
-```text
-label,pixel0,pixel1,pixel2,...,pixel783
-```
-
-Each image has:
-
-```text
-28 x 28 = 784 pixels
-```
-
-### `MNIST_ORG.zip`
-
-Use later after the CSV version works.
-
-Contains the original IDX files:
-
-```text
-train-images.idx3-ubyte
-train-labels.idx1-ubyte
-t10k-images.idx3-ubyte
-t10k-labels.idx1-ubyte
-```
-
-## Important Design Change
-
-The old XOR model used:
-
-```text
-2 inputs -> hidden layer 1 -> hidden layer 2 -> 1 output
-```
-
-MNIST needs:
-
-```text
-784 inputs -> hidden layer 1 -> hidden layer 2 -> 10 outputs
-```
-
-Why:
-
-```text
-784 inputs = one input per image pixel
-10 outputs = one output neuron per digit class
-```
-
-Output meaning:
-
-```text
-output[0] = confidence for digit 0
-output[1] = confidence for digit 1
-...
-output[9] = confidence for digit 9
-```
-
-The predicted digit is the index with the highest output value.
-
-Example:
-
-```text
-Output = [0.01, 0.02, 0.91, 0.03, 0.00, 0.01, 0.01, 0.00, 0.00, 0.01]
-Prediction = 2
-```
-
-
-## Current Project State
-
-The project already has:
-
-```text
-Matrix operations
-Sigmoid activation
-MSE loss
-Layer forward pass
+Training Data
+      │
+      ▼
+NeuralNetwork
+      │
+      ▼
+Layer
+      │
+      ▼
+Matrix Operations
+      │
+      ▼
+Activation Function
+      │
+      ▼
+Loss Function
+      │
+      ▼
 Backpropagation
-Training loop
-XOR training
-Save/load weights
-WPF UI
-Loss history
-Live loss graph
-Live neuron activation graph
+      │
+      ▼
+Gradient Descent
+      │
+      ▼
+Updated Weights
 ```
 
-The next project phase is to convert the XOR model into an MNIST digit classifier.
+Project organization:
 
----
-
-# Full Task List
-
-## Phase 1: Preserve the Current XOR Version
-
-Goal: Avoid breaking the working XOR visualizer.
-
-Tasks:
-
-- [ ] Save a backup copy of the current working project.
-- [ ] Keep XOR training working while MNIST code is added.
-- [ ] Add a UI mode later for:
-  - XOR mode
-  - MNIST mode
-- [ ] Keep the current live loss graph.
-- [ ] Keep the current layer activation graph.
-- [ ] Do not delete the XOR sample code yet.
-
-Checkpoint:
-
-```text
-The current XOR model should still train and visualize correctly.
+```
+Matrix.cs
+        │
+Activation.cs
+        │
+Loss.cs
+        │
+Layer.cs
+        │
+NeuralNetwork.cs
+        │
+TrainingSample.cs
+        │
+WPF Visualization
 ```
 
 ---
 
-## Phase 2: Understand the MNIST Data Shape
+# Current Project Status
 
-Goal: Know exactly what the model input and output should look like.
+## Completed
 
-Tasks:
+- Matrix library
+- Feedforward neural network
+- Backpropagation
+- Gradient descent
+- XOR training
+- Weight saving/loading
+- Live loss graph
+- Live neuron activation visualization
 
-- [ ] Confirm each MNIST image has 784 pixel values.
-- [ ] Confirm each label is an integer from 0 to 9.
-- [ ] Understand that each image input should become a `784 x 1` matrix.
-- [ ] Understand that each target label should become a `10 x 1` one-hot vector.
-- [ ] Normalize pixel values from `0-255` into `0.0-1.0`.
+## In Progress
 
-Input shape:
+- MNIST dataset support
+- Multi-class classification
+- Digit visualization
+- Performance improvements
 
-```text
-784 x 1
+---
+
+# Example Workflow
+
 ```
+Input Data
 
-Target shape:
+↓
 
-```text
-10 x 1
-```
+Forward Propagation
 
-Example label conversion:
+↓
 
-```text
-label = 3
+Prediction
 
-target =
-[0]
-[0]
-[0]
-[1]
-[0]
-[0]
-[0]
-[0]
-[0]
-[0]
-```
+↓
 
-Checkpoint question:
+Loss Calculation
 
-```text
-Why does MNIST need 10 output neurons instead of 1?
+↓
+
+Backpropagation
+
+↓
+
+Weight Updates
+
+↓
+
+Repeat Until Converged
 ```
 
 ---
 
-## Phase 3: Create MNIST Training Sample Support
+# Planned Features
 
-Goal: Reuse the current `TrainingSample` idea for MNIST.
+- MNIST handwritten digit recognition
+- 784-input neural network
+- Softmax activation
+- Cross-Entropy loss
+- Mini-batch gradient descent
+- Per-digit accuracy metrics
+- Confusion matrix
+- Better visualization tools
+- Additional activation functions
 
-Tasks:
-
-- [ ] Confirm `TrainingSample` can already hold:
-  - `Matrix Input`
-  - `Matrix Target`
-- [ ] Use the same class for MNIST.
-- [ ] Create MNIST samples where:
-  - `Input` is `784 x 1`
-  - `Target` is `10 x 1`
-- [ ] Add helper logic for one-hot encoding.
-- [ ] Add helper logic for pixel normalization.
-
-Data flow:
-
-```text
-CSV row
-    -> label
-    -> 784 pixel values
-    -> normalized 784 x 1 input matrix
-    -> one-hot 10 x 1 target matrix
-    -> TrainingSample
-```
+For the complete development roadmap, see **ROADMAP.md**.
 
 ---
 
-## Phase 4: Build an MNIST CSV Loader
+# Screenshots
 
-Goal: Load `mnist_train.csv` and `mnist_test.csv`.
+*(To be added as development progresses.)*
 
-Tasks:
+Recommended screenshots:
 
-- [ ] Extract `MNIST_CSV.zip`.
-- [ ] Locate `mnist_train.csv`.
-- [ ] Locate `mnist_test.csv`.
-- [ ] Create a new class:
-  - `MnistCsvLoader`
-- [ ] Add method conceptually like:
-  - `LoadSamples(filePath, maxSamples)`
-- [ ] Read the CSV file line by line.
-- [ ] Split each row by comma.
-- [ ] First value is the label.
-- [ ] Remaining 784 values are pixels.
-- [ ] Normalize each pixel:
-  - `pixel / 255.0`
-- [ ] Convert label into one-hot target.
-- [ ] Return a `List<TrainingSample>`.
-
-Important:
-
-```text
-Do not load all 60,000 training rows immediately at first.
-```
-
-Start small:
-
-```text
-100 samples
-1000 samples
-5000 samples
-full dataset later
-```
----
-
-## Phase 5: Add MNIST Network Architecture
-
-Goal: Create a network shape that supports digit classification.
-
-Tasks:
-
-- [ ] Keep XOR architecture available:
-  - `2 -> 4 -> 4 -> 1`
-- [ ] Add MNIST architecture:
-  - `784 -> hidden1 -> hidden2 -> 10`
-- [ ] Start with smaller hidden layers:
-  - `784 -> 64 -> 32 -> 10`
-- [ ] Later experiment with:
-  - `784 -> 128 -> 64 -> 10`
-- [ ] Confirm matrix shapes for each layer.
-
-Shape example:
-
-```text
-Input: 784 x 1
-
-Hidden layer 1:
-weights = 64 x 784
-bias    = 64 x 1
-output  = 64 x 1
-
-Hidden layer 2:
-weights = 32 x 64
-bias    = 32 x 1
-output  = 32 x 1
-
-Output layer:
-weights = 10 x 32
-bias    = 10 x 1
-output  = 10 x 1
-```
+- Main application
+- XOR training
+- Live loss graph
+- Activation visualization
+- MNIST digit prediction
 
 ---
 
-## Phase 6: Update Prediction Logic for Multi-Class Output
+# Running the Project
 
-Goal: Replace binary threshold prediction with argmax prediction for MNIST.
+Clone the repository
 
-Current XOR logic:
-
-```text
-if output >= 0.5:
-    predicted label = 1
-else:
-    predicted label = 0
+```bash
+git clone https://github.com/CodieneMonster/NeuralVis-Goggles.git
 ```
 
-MNIST needs:
+Open the solution in Visual Studio.
 
-```text
-predicted label = index of largest output value
-```
+Build the solution.
 
-Tasks:
+Run the application.
 
-- [ ] Add an argmax helper.
-- [ ] Find the output neuron with the highest value.
-- [ ] Convert one-hot target back into label using argmax.
-- [ ] Update accuracy logic for 10 classes.
-- [ ] Keep XOR accuracy logic separate or make prediction mode aware.
-
-Example:
-
-```text
-output:
-[0.01]
-[0.04]
-[0.88]
-[0.02]
-[0.01]
-[0.00]
-[0.02]
-[0.01]
-[0.00]
-[0.01]
-
-predicted digit = 2
-```
+Select **Train XOR** to watch the network learn in real time.
 
 ---
 
-## Phase 7: Update Loss and Output Activation Strategy
+# What I Learned
 
-Goal: Make training work better for 10 outputs.
+Building NeuralVis has strengthened my understanding of:
 
-Simple starting plan:
+- Software architecture
+- Object-oriented design
+- Numerical computing
+- Machine learning fundamentals
+- Linear algebra
+- Debugging complex mathematical systems
+- Performance optimization
+- Data visualization
 
-```text
-Keep sigmoid output + MSE first
-```
-
-Why:
-
-```text
-The current network already supports sigmoid and MSE.
-This makes the first MNIST version easier.
-```
-
-Tasks:
-
-- [ ] Use 10 sigmoid output neurons first.
-- [ ] Use MSE against the one-hot target first.
-- [ ] Verify training runs without shape errors.
-- [ ] Track whether loss decreases.
-- [ ] Track whether accuracy improves.
-- [ ] Later consider Softmax + Cross Entropy after the simple version works.
-
-Do not start with softmax yet unless the current sigmoid/MSE version works.
-
+This project continues to evolve as I implement increasingly advanced neural network architectures and visualization tools.
 
 ---
-
-## Phase 8: Create MNIST Training Loop
-
-Goal: Train on MNIST samples using the existing training pattern.
-
-Tasks:
-
-- [ ] Load a small training subset.
-- [ ] Train one epoch at a time.
-- [ ] Track average loss.
-- [ ] Track accuracy.
-- [ ] Add loss history points.
-- [ ] Update UI status.
-- [ ] Avoid refreshing huge UI tables too often.
-- [ ] Do not show all MNIST prediction rows at once.
-
-Suggested first training test:
-
-
-
-## Phase 9: Add MNIST Prediction Rows
-
-Goal: Show a small set of predictions in the UI.
-
-Tasks:
-
-- [ ] Create a new row class if needed:
-  - `MnistPredictionRow`
-- [ ] Store:
-  - sample index
-  - predicted digit
-  - target digit
-  - confidence
-  - correct or incorrect
-- [ ] Display only a small number of test predictions.
-- [ ] Do not display thousands of rows.
-
-Example row:
-
-
----
-
-## Phase 10: Add Image Visualization for MNIST
-
-Goal: Show the actual 28x28 digit image.
-
-Tasks:
-
-- [ ] Convert a `784 x 1` input matrix back into a `28 x 28` grid.
-- [ ] Draw pixels in WPF.
-- [ ] Start with a simple grid or canvas.
-- [ ] Pixel brightness should match normalized value.
-- [ ] Add selected test sample display.
-- [ ] Show:
-  - image
-  - target digit
-  - predicted digit
-  - confidence
-
-Data flow:
-
-```text
-784 x 1 matrix
-    -> 28 rows
-    -> 28 columns
-    -> pixel brightness
-    -> drawn digit image
-```
-
----
-
-## Phase 11: Update Activation Graph for MNIST
-
-Goal: Reuse the neuron activation graph without drawing all 784 input neurons.
-
-Problem:
-
-```text
-MNIST has 784 input neurons.
-Drawing all 784 circles would be messy.
-```
-
-Tasks:
-
-- [ ] Keep activation snapshot support.
-- [ ] For MNIST, show compressed input visualization instead of 784 input circles.
-- [ ] Show hidden layer activations normally.
-- [ ] Show 10 output neurons for digits 0-9.
-- [ ] Highlight the predicted output neuron.
-- [ ] Label output neurons:
-  - 0 through 9
-- [ ] Show strongest output path if possible.
-
-Suggested visualization:
-
-```text
-28x28 image -> Hidden 1 -> Hidden 2 -> Output digits 0-9
-```
-
----
-
-## Phase 12: Save and Load MNIST Models
-
-Goal: Save trained MNIST weights separately from XOR weights.
-
-Tasks:
-
-- [ ] Save architecture in the weight file.
-- [ ] Save hidden layer weights and biases.
-- [ ] Save output layer weights and biases.
-- [ ] Use a different filename:
-  - `mnist_weights.txt`
-- [ ] Load model from file.
-- [ ] Confirm predictions match before and after loading.
-- [ ] Keep XOR save/load separate:
-  - `xor_weights.txt`
-  - `mnist_weights.txt`
-
-
----
-
-## Phase 13: UI Mode Switching
-
-Goal: Let the app switch between XOR and MNIST.
-
-Tasks:
-
-- [ ] Add a mode property:
-  - `CurrentMode`
-- [ ] Add buttons:
-  - `New XOR Model`
-  - `Train XOR`
-  - `Load XOR Model`
-  - `New MNIST Model`
-  - `Load MNIST Data`
-  - `Train MNIST`
-  - `Test MNIST`
-- [ ] Hide or change UI sections depending on mode.
-- [ ] Keep old XOR tools working.
-- [ ] Add MNIST-specific sections:
-  - digit image viewer
-  - MNIST prediction rows
-  - 10-output display
-
----
-
-## Phase 14: Performance Safety
-
-Goal: Prevent the app from freezing or becoming too slow.
-
-Tasks:
-
-- [ ] Do not update UI every sample.
-- [ ] Do not display thousands of rows.
-- [ ] Use small sample counts during early testing.
-- [ ] Use async training carefully.
-- [ ] Add a cancel training option later.
-- [ ] Add limits for:
-  - epochs
-  - learning rate
-  - training sample count
-  - test sample count
-- [ ] Use `recordEvery` to control graph update frequency.
-- [ ] Keep MNIST image drawing separate from training loop.
-
-Recommended early limits:
-
-```text
-Epochs: 1 to 100
-Learning rate: 0.0001 to 5.0
-Training samples: 10 to 10000
-Test samples: 10 to 1000
-```
-
-
-
----
-
-## Phase 15: Later Improvements
-
-Only do these after the basic MNIST version works.
-
-Tasks:
-
-- [ ] Add Softmax activation.
-- [ ] Add Cross Entropy loss.
-- [ ] Add mini-batch training.
-- [ ] Shuffle training samples.
-- [ ] Add better weight initialization.
-- [ ] Add confusion matrix.
-- [ ] Add per-digit accuracy.
-- [ ] Add training cancellation.
-- [ ] Add model metadata:
-  - epochs trained
-  - training samples used
-  - accuracy
-  - date saved
-- [ ] Add original IDX loader using `MNIST_ORG.zip`.
-
-Do not start these until:
-
-```text
-CSV loader works
-MNIST model trains
-Predictions display
-Accuracy improves above random guessing
-```
-
----
-
