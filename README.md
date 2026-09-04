@@ -228,19 +228,5 @@ Select **Train XOR** to watch the network learn in real time.
 
 ---
 
-# What I Learned
-
-Building NeuralVis has strengthened my understanding of:
-
-- Software architecture
-- Object-oriented design
-- Numerical computing
-- Machine learning fundamentals
-- Linear algebra
-- Debugging complex mathematical systems
-- Performance optimization
-- Data visualization
-
-This project continues to evolve as I implement increasingly advanced neural network architectures and visualization tools.
 
 ---
