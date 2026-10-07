@@ -200,15 +200,6 @@ For the complete development roadmap, see **ROADMAP.md**.
 
 *(To be added as development progresses.)*
 
-Recommended screenshots:
-
-- Main application
-- XOR training
-- Live loss graph
-- Activation visualization
-- MNIST digit prediction
-
----
 
 # Running the Project
 
@@ -223,8 +214,6 @@ Open the solution in Visual Studio.
 Build the solution.
 
 Run the application.
-
-Select **Train XOR** to watch the network learn in real time.
 
 ---
 
